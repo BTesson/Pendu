@@ -1,0 +1,17 @@
+.tested{
+    flex: 1 1 40px;
+    margin: 0;
+    border: 1px solid black;
+    text-align: center;
+    height: 20px;
+    background-color: lightgrey;
+}
+
+.untested{
+    flex: 1 1 40px;
+    margin: 0;
+    border: 1px solid black;
+    text-align: center;
+    height: 20px;
+    background-color: grey;
+}

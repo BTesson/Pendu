@@ -36,3 +36,39 @@
     transform: rotate(360deg);
   }
 }
+
+#id{
+  margin: 0;
+}
+
+.pendu{
+  width: 560px;
+}
+
+.word{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.status-of-game{
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0px 10px 0px;
+}
+
+
+.keyboard{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.button-played-again{
+  width: 560px;
+  height: 40px;
+}
+
+.button-played-again:hover{
+  background-color: green;
+  font-weight: bolder;
+}

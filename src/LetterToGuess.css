@@ -1,0 +1,7 @@
+.letter-to-guess{
+    margin: 0;
+    border: 1px solid black;
+    text-align: center;
+    height: 20px;
+    width: 40px;
+}
