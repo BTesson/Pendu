@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Suspense, useState } from 'react';
+import KeyboardEventHandler from 'react-keyboard-event-handler'
 import './App.css';
-import LetterToGuess from './LetterToGuess';
-import InformationPlayer from './InformationPlayer';
-import KeyLetter from './KeyLetter';
 import Player from './Player';
+const LetterToGuess = React.lazy(() => import('./LetterToGuess'));
+const InformationPlayer = React.lazy(() => import('./InformationPlayer'));
+const KeyLetter = React.lazy(() => import( './KeyLetter'));
 
 const ALPHABET_LETTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const ALL_WORDS = [
@@ -68,7 +69,7 @@ class App extends Component {
     this.setState({wordInProgress: [...wordInProgress, letter]});
     players[currentPlayer].player.stroke++; 
     this.setState({players: players});
-    this.setState({currentPlayer: currentPlayer == 0 ? 1 : 0});
+    this.setState({currentPlayer: currentPlayer === 0 ? 1 : 0});
   }
 
   getScore = letter => {
@@ -81,7 +82,7 @@ class App extends Component {
     } else {
       value = -1;
     }
-    players[currentPlayer].player.score = players[currentPlayer].player.score + value;
+    players[currentPlayer].player.score += value;
     this.setState({players: players});
   }
 
@@ -105,8 +106,14 @@ class App extends Component {
   render() {
     const {wordToFind, wordInProgress, currentPlayer, players} = this.state;
     const won = wordToFind.filter(elmt => wordInProgress.includes(elmt)).length === wordToFind.length;
+    const playerKeyboard = players[currentPlayer].keyboardLetter;
+    const playerName = players[currentPlayer].player.name;
+    const playerScore = players[currentPlayer].player.score;
+    const playerStroke = players[currentPlayer].player.stroke;
+
     return (
       <div className="pendu">
+        <Suspense fallback={<p>Chargement</p>}>
         <h1>Pendu des capitales du continent Europe</h1>
         <div className="word">
           {
@@ -123,30 +130,35 @@ class App extends Component {
         {
           won ?
             <div className="status-of-game">
-              <label>Gagnant: {(players[0].player.score != players[1].player.score) ? 
+              <label>Gagnant: {(players[0].player.score !== players[1].player.score) ? 
                                 (players[0].player.score > players[1].player.score) ? players[0].player.name :  players[1].player.name 
                               : 
                                 "Equality"}</label>  
             </div>
-          : players[currentPlayer].player.score <= 0 ?
+          : playerScore <= 0 ?
               <div className="status-of-game">
-                <label>Peru</label>
+                <label>Perdu</label>
               </div>
             :
               <InformationPlayer
-                stroke = {players[currentPlayer].player.stroke}
-                name = {players[currentPlayer].player.name}
-                score = {players[currentPlayer].player.score}
+                stroke = {playerStroke}
+                name = {playerName}
+                score = {playerScore}
               />
         }
 
         <div className="keyboard">
           { 
-            won || players[currentPlayer].player.score <= 0 ? 
-              <button className="button-played-again" onClick={this.handleClickNewGame}>Played again</button>
+            won || playerScore <= 0 ? 
+              <button className="button-played-again" onClick={this.handleClickNewGame}>Played again
+                <KeyboardEventHandler
+                  handleKeys={['enter']}
+                  onKeyEvent={this.handleClickNewGame}
+                />
+              </button>
             :              
-              players[currentPlayer].keyboardLetter.map((elmt, index) => (
-                <KeyLetter
+            playerKeyboard.map((elmt, index) => (
+                 <KeyLetter
                   letter = {elmt}
                   feedback = {this.getFeedBack(elmt) ? 'tested' : 'untested'}
                   onClick = {this.handleClickLetter}
@@ -155,10 +167,41 @@ class App extends Component {
               ))
           }
         </div>
+        </Suspense>
       </div>
     );
   }
-
 }
+
+/**
+ * Class avec création d'élément sans JSX
+ */
+class Testeux extends React.Component{
+  constructor(props){
+    super(props);
+  }
+
+  render(){
+    return (
+      <div>
+        {
+          React.createElement('div',{className: this.props.index}, this.props.elmt)
+        }
+        <CustomButton letter={this.props.elmt} />
+      </div>
+    );
+  }
+}
+
+/**
+ * Hook state
+ */
+function CustomButton({letter}){
+  const [state, setState] = useState('untested');
+  return (
+    <button className={state} onClick={() => {setState('tested')}}>{letter}</button>
+  )
+}
+
 
 export default App;
